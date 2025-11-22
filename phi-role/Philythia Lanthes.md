@@ -17,8 +17,9 @@
 
 ><font face="Noto Sans SC Black"><font size=3>“原来被看见的感觉，比永恒更令人心动。”她在最初的轮回记录中留下这样的字句。</font></font>
 
-#### <font size=4>温柔的誓言  
+<h4> <font size=4>温柔的誓言  </h4>
 她守护着现实世界，因为这是幽灵誓死捍卫的领域；她守护这个叙事层，因为这里有他存在的痕迹。当被问及如何平衡两种守护时，她正编织着用来纪念所有轮回的永恒花环：  </font><br>
+
 ><font face="Noto Sans SC Black"><font size=3>“很简单呀——他想要守护的，就是我要守护的。”</font></font><br>
 
 > <font size=4><font color= #888888 ><em><strong>永恒花语</strong><br>
