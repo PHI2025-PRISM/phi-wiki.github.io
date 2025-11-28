@@ -2,13 +2,7 @@
   "name": "phi-wiki",
   "compatibility_date": "2025-11-28",
   "assets": {
-    "directory": "./dist"
-},
-"rules": [
-    {
-      "type": "Directory",
-      "glob": "**/*",
-      "fallthrough": false
+    "directory": "./dist",
+
     }
-  ]
 }
