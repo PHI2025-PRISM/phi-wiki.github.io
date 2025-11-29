@@ -102,6 +102,17 @@
             box-shadow: var(--shadow);
             padding: 1.5rem;
             align-self: flex-start;
+            /* 动态扩展侧边栏 */
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+            position: sticky;
+            top: 20px;
+            /* 过渡效果 */
+            transition: max-height 0.3s ease;
+        }
+
+        .sidebar.expanded {
+            max-height: calc(100vh - 100px);
         }
 
         .sidebar-header {
@@ -253,14 +264,12 @@
             list-style: none;
             overflow: hidden;
             transition: max-height 0.3s ease-out;
+            max-height: 0;
         }
 
-            .category-doc-list.collapsed {
-                max-height: 0;
-            }
-
             .category-doc-list.expanded {
-                max-height: 500px; 
+                max-height: 1000px; 
+                overflow-y: auto;
             }
 
             .category-doc-list li {
@@ -322,14 +331,12 @@
             list-style: none;
             overflow: hidden;
             transition: max-height 0.3s ease-out;
+            max-height: 0;
         }
 
-            .subcategory-doc-list.collapsed {
-                max-height: 0;
-            }
-
             .subcategory-doc-list.expanded {
-                max-height: 300px;
+                max-height: 800px;
+                overflow-y: auto;
             }
 
             .subcategory-doc-list li {
@@ -391,14 +398,12 @@
             list-style: none;
             overflow: hidden;
             transition: max-height 0.3s ease-out;
+            max-height: 0;
         }
 
-            .subsubcategory-doc-list.collapsed {
-                max-height: 0;
-            }
-
             .subsubcategory-doc-list.expanded {
-                max-height: 250px;
+                max-height: 600px;
+                overflow-y: auto;
             }
 
             .subsubcategory-doc-list li {
@@ -423,6 +428,74 @@
                     background-color: var(--secondary-color);
                     color: white;
                 }
+        
+         /* 四级嵌套菜单样式 */
+        .subsubsubcategory {
+            margin-left: 0.5rem;
+        }
+
+        .subsubsubcategory-header {
+            cursor: pointer;
+            padding: 0.3rem 0.5rem;
+            font-weight: 500;
+            color: var(--dark-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+            .subsubsubcategory-header:hover {
+                background-color: var(--light-color);
+            }
+
+        .subsubsubcategory-arrow {
+            font-size: 0.6rem;
+            transition: transform 0.3s;
+        }
+
+        .subsubsubcategory-header.expanded .subsubsubcategory-arrow {
+            transform: rotate(90deg);
+        }
+
+        .subsubsubcategory-doc-list {
+            margin-left: 1rem;
+            list-style: none;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            max-height: 0;
+        }
+
+            .subsubsubcategory-doc-list.expanded {
+                max-height: 500px;
+                overflow-y: auto;
+            }
+
+            .subsubsubcategory-doc-list li {
+                margin-bottom: 0.1rem;
+            }
+
+            .subsubsubcategory-doc-list a {
+                color: var(--text-color);
+                text-decoration: none;
+                display: block;
+                padding: 0.1rem 0.5rem;
+                border-radius: 4px;
+                transition: background-color 0.3s;
+                font-size: 0.75rem;
+            }
+
+                .subsubsubcategory-doc-list a:hover {
+                    background-color: var(--light-color);
+                }
+
+                .subsubsubcategory-doc-list a.active {
+                    background-color: var(--secondary-color);
+                    color: white;
+                }
+
 
         /* 主内容区样式 */
         .main-content {
@@ -624,7 +697,7 @@
     <footer>
         <div class="header-content" style="padding: 0.75rem 1rem;">
             <div style="width:100%; display:flex; justify-content:center; align-items:center; gap:0.5rem;">
-                <div style="font-size:0.95rem;">&copy; 2025 棱镜重工Wiki - 由 GitHub Pages 驱动 · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">本wiki遵循CC-BY-SA-4.0许可证</a></div>
+                <div style="font-size:0.95rem;">&copy; 2025 棱镜重工Wiki - 由 GitHub Pages 驱动 · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">本wiki遵循CC BY-SA-4.0许可证</a></div>
             </div>
         </div>
     </footer>
@@ -757,34 +830,42 @@
                 },
                 "故事": {
                     "主线故事": {
-                        "farewell-war": "永别了，战争",
-                        "polarized-light": "偏振光"
-                    },
+                        "永别了，战争": {
+                            "章节": {
+                                "farewell-war-chapter1": "第一章：赫尔辛基的阴影",
+                                "farewell-war-chapter2": "第二章：空痕与回响", 
+                                "farewell-war-chapter3": "第三章：以太回响里的安魂曲",
+                                "farewell-war-chapter4": "第四章：雪原上的信标",
+                                "farewell-war-chapter5": "第五章：寂静的回声"
+                            },
+                            "角色分析": {
+                                "farewell-war-characters-main": "主要角色",
+                                "farewell-war-characters-side": "次要角色"
+                            },
+                            "背景设定": {
+                                "farewell-war-setting-time": "时间线",
+                                "farewell-war-setting-location": "地点"
+                            }
+                        },
+                         "偏振光": {
+                            "章节": {
+                            "polarized-light-chapter1": "第一章：光之始",
+                            "polarized-light-chapter2": "第二章：折射的命运",
+                         }
+                    }
+                },
                     "支线故事": {
                         "danger-zone": "危险地带"
-                    },
-                    "永别了，战争": {
-                        "章节": {
-                            "farewell-war-chapter1": "第一章：赫尔辛基的阴影",
-                            "farewell-war-chapter2": "第二章：空痕与回响", 
-                            "farewell-war-chapter3": "第三章：以太回响里的安魂曲",
-                            "farewell-war-chapter4": "第四章：雪原上的信标",
-                            "farewell-war-chapter5": "第五章：寂静的回声"
-                        },
-                        "角色分析": {
-                            "farewell-war-characters-main": "主要角色",
-                            "farewell-war-characters-side": "次要角色"
-                        },
-                        "背景设定": {
-                            "farewell-war-setting-time": "时间线",
-                            "farewell-war-setting-location": "地点"
-                        }
                     }
                 },
                 "角色": {
-                    "philythia-lanthes": "菲莉茜娅·兰瑟斯",
-                    "edward-riley": "爱德华·莱利",
-                    "talia-riley": "塔莉娅·莱利"
+                    "主要角色": {
+                        "philythia-lanthes": "菲莉茜娅·兰瑟斯",
+                        "edward-riley": "爱德华·莱利"
+                    },
+                    "次要角色": {
+                        "talia-riley": "塔莉娅·莱利"
+                    }
                 },
                 "物品": {
                     "nihilith": "莫伦晶",
@@ -825,20 +906,25 @@
                 const docList = document.createElement('ul');
                 docList.className = 'category-doc-list collapsed';
 
-                // 递归添加项目（支持二级嵌套）
+                // 递归添加项目
                 addItemsToMenu(docList, categoryItems, 1);
 
                 // 点击分类标题展开/折叠
                 categoryHeader.addEventListener('click', function () {
                     const isExpanded = docList.classList.contains('expanded');
+                    if (!isExpanded) {
+                        collapseAllMainCategories(category);
+                    }
                     if (isExpanded) {
                         docList.classList.remove('expanded');
                         docList.classList.add('collapsed');
                         categoryHeader.classList.remove('expanded');
+                        checkSidebarCollapse(); // 检查是否需要折叠侧边栏
                     } else {
                         docList.classList.remove('collapsed');
                         docList.classList.add('expanded');
                         categoryHeader.classList.add('expanded');
+                        expandSidebar(); // 展开侧边栏以显示内容
                     }
                 });
 
@@ -848,7 +934,44 @@
             });
         }
 
-        // 递归添加项目到菜单（支持二级嵌套）
+        // 折叠所有主分类（除了指定的分类）
+        function collapseAllMainCategories(exceptCategory) {
+            const allCategories = document.querySelectorAll('.sidebar-category');
+            
+            allCategories.forEach(category => {
+                const categoryName = category.getAttribute('data-category');
+                if (categoryName !== exceptCategory) {
+                    const header = category.querySelector('.category-header');
+                    const docList = category.querySelector('.category-doc-list');
+                    
+                    if (docList.classList.contains('expanded')) {
+                        docList.classList.remove('expanded');
+                        docList.classList.add('collapsed');
+                        header.classList.remove('expanded');
+                    }
+                }
+            });
+        }
+
+        // 展开侧边栏
+        function expandSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.add('expanded');
+        }
+
+        // 检查是否需要折叠侧边栏
+        function checkSidebarCollapse() {
+            const sidebar = document.getElementById('sidebar');
+            const expandedMenus = document.querySelectorAll('.category-doc-list.expanded, .subcategory-doc-list.expanded, .subsubcategory-doc-list.expanded, .subsubsubcategory-doc-list.expanded');
+            
+            // 如果没有展开的菜单，则折叠侧边栏
+            if (expandedMenus.length === 0) {
+                sidebar.classList.remove('expanded');
+            }
+        }
+
+
+        // 递归添加项目到菜单
         function addItemsToMenu(container, items, level) {
             Object.entries(items).forEach(([key, value]) => {
                 // 如果值是对象，说明是子分类
@@ -857,6 +980,8 @@
                         addSubcategory(container, key, value, level);
                     } else if (level === 2) {
                         addSubsubcategory(container, key, value, level);
+                    }else if (level === 3) {
+                        addSubsubsubcategory(container, key, value, level);
                     }
                     // 可以继续添加更多级别，但三级通常足够
                 } 
@@ -894,10 +1019,12 @@
                     subcategoryDocList.classList.remove('expanded');
                     subcategoryDocList.classList.add('collapsed');
                     subcategoryHeader.classList.remove('expanded');
+                    checkSidebarCollapse();
                 } else {
                     subcategoryDocList.classList.remove('collapsed');
                     subcategoryDocList.classList.add('expanded');
                     subcategoryHeader.classList.add('expanded');
+                     expandSidebar();
                 }
             });
 
@@ -933,16 +1060,59 @@
                     subsubcategoryDocList.classList.remove('expanded');
                     subsubcategoryDocList.classList.add('collapsed');
                     subsubcategoryHeader.classList.remove('expanded');
+                    checkSidebarCollapse();
                 } else {
                     subsubcategoryDocList.classList.remove('collapsed');
                     subsubcategoryDocList.classList.add('expanded');
                     subsubcategoryHeader.classList.add('expanded');
+                     expandSidebar();
                 }
             });
 
             subsubcategoryItem.appendChild(subsubcategoryHeader);
             subsubcategoryItem.appendChild(subsubcategoryDocList);
             container.appendChild(subsubcategoryItem);
+        }
+
+        // 添加四级子分类
+        function addSubsubsubcategory(container, subsubsubcategoryName, subsubsubcategoryItems, level) {
+            const subsubsubcategoryItem = document.createElement('li');
+            subsubsubcategoryItem.className = 'subsubsubcategory';
+
+            // 创建子分类标题
+            const subsubsubcategoryHeader = document.createElement('div');
+            subsubsubcategoryHeader.className = 'subsubsubcategory-header';
+            subsubsubcategoryHeader.innerHTML = `
+                    <span>${subsubsubcategoryName}</span>
+                    <span class="subsubsubcategory-arrow">▶</span>
+                `;
+
+            // 创建子分类文档列表
+            const subsubsubcategoryDocList = document.createElement('ul');
+            subsubsubcategoryDocList.className = 'subsubsubcategory-doc-list collapsed';
+
+            // 递归添加子分类中的项目
+            addItemsToMenu(subsubsubcategoryDocList, subsubsubcategoryItems, level + 1);
+
+            // 点击子分类标题展开/折叠
+            subsubsubcategoryHeader.addEventListener('click', function () {
+                const isExpanded = subsubsubcategoryDocList.classList.contains('expanded');
+                if (isExpanded) {
+                    subsubsubcategoryDocList.classList.remove('expanded');
+                    subsubsubcategoryDocList.classList.add('collapsed');
+                    subsubsubcategoryHeader.classList.remove('expanded');
+                    checkSidebarCollapse();
+                } else {
+                    subsubsubcategoryDocList.classList.remove('collapsed');
+                    subsubsubcategoryDocList.classList.add('expanded');
+                    subsubsubcategoryHeader.classList.add('expanded');
+                    expandSidebar();
+                }
+            });
+
+            subsubsubcategoryItem.appendChild(subsubsubcategoryHeader);
+            subsubsubcategoryItem.appendChild(subsubsubcategoryDocList);
+            container.appendChild(subsubsubcategoryItem);
         }
 
         // 添加文档项
@@ -1371,7 +1541,6 @@
     </script>
 </body>
 </html>
-
 
 
 
