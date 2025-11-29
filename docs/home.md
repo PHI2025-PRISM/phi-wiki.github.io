@@ -21,7 +21,8 @@
 
 我们欢迎社区贡献！请阅读：<br>
 [贡献指南](https://phi2025-prism.github.io/phi-wiki/#contributing) - 了解如何参与写作<br>
-[行为准则](https://phi2025-prism.github.io/phi-wiki/#code-of-conduct) - 社区交流规范
+[行为准则](https://phi2025-prism.github.io/phi-wiki/#code-of-conduct) - 社区交流规范<br>
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) -本wiki遵循此许可证 
 
 提示：本Wiki内容会持续更新，建议定期访问以获取最新信息。如有任何建议或发现问题，请通过[Issues](https://github.com/PHI2025-PRISM/phi-wiki/issues)或[discord/wiki-help](https://discord.gg/JMuaYfZM)反馈。
 
