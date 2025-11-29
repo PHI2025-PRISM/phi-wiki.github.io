@@ -251,7 +251,7 @@
             }
 
             .category-doc-list.expanded {
-                max-height: 500px; /* 足够大的值以容纳内容 */
+                max-height: 500px; 
             }
 
             .category-doc-list li {
@@ -477,7 +477,7 @@
     <footer>
         <div class="header-content" style="padding: 0.75rem 1rem;">
             <div style="width:100%; display:flex; justify-content:center; align-items:center; gap:0.5rem;">
-                <div style="font-size:0.95rem;">&copy; 2023 棱镜重工Wiki - 由 GitHub Pages 驱动 · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">本wiki遵循CC-BY-SA-4.0许可证</a></div>
+                <div style="font-size:0.95rem;">&copy; 2025 棱镜重工Wiki - 由 GitHub Pages 驱动 · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">本wiki遵循CC-BY-SA-4.0许可证</a></div>
             </div>
         </div>
     </footer>
@@ -491,7 +491,7 @@
                 { id: "getting-started", title: "快速开始", file: "docs/getting-started.md" },
                 { id: "installation", title: "安装指南", file: "docs/installation.md" },
                 { id: "configuration", title: "配置说明", file: "docs/configuration.md" },
-                { id: "api-reference", title: "API参考", file: "docs/api-reference.md" },
+                { id: "philythia-lanthes", title: "菲莉茜娅·兰瑟斯", file: "docs/phi-role/Philythia-Lanthes.md" },
                 { id: "troubleshooting", title: "故障排除", file: "docs/troubleshooting.md" },
                 { id: "best-practices", title: "最佳实践", file: "docs/best-practices.md" },
                 { id: "contributing", title: "贡献指南", file: "docs/contributing.md" },
@@ -572,14 +572,14 @@
             // 设置路由
             setupRouting();
 
-            // 加载初始文档
-            loadDocument(getCurrentDoc());
+            // 初始化搜索功能（必须在加载文档之前初始化索引，避免 race condition）
+            initSearch();
 
             // 设置导航事件
             setupNavigation();
 
-            // 初始化搜索功能
-            initSearch();
+            // 加载初始文档
+            loadDocument(getCurrentDoc());
 
             console.log("初始化完成");
         });
@@ -593,23 +593,16 @@
                 "入门指南": {
                     "home": "首页",
                     "getting-started": "快速开始",
-                    "installation": "安装指南"
-                },
-                "用户指南": {
-                    "configuration": "配置说明",
-                    "troubleshooting": "故障排除",
-                    "faq": "常见问题"
+                     "faq": "常见问题"
                 },
                 "高级功能": {
                     "advanced-usage": "高级用法",
                     "advanced-config": "高级配置",
                     "advanced-performance": "性能优化"
                 },
-                "API文档": {
-                    "api-reference": "API参考",
-                    "rest-api": "REST API",
-                    "graphql-api": "GraphQL API",
-                    "websocket-api": "WebSocket API"
+                "角色": {
+                    "philythia-lanthes": "菲莉茜娅·兰瑟斯",
+                    // ... 其他角色文档
                 },
                 "部署指南": {
                     "docker-deploy": "Docker部署",
@@ -756,10 +749,11 @@
             // 查找文档配置
             const doc = docConfig.menu.find(d => d.id === docId);
             if (!doc) {
-                showError('文档不存在');
+                showError(`文档不存在: ${docId}`);
                 return;
             }
 
+            console.log(`正在加载文档: ${doc.file}`); // 添加日志
             // 更新页面标题
             document.getElementById('page-title').textContent = doc.title;
 
@@ -767,13 +761,37 @@
             updateBreadcrumb(doc.title);
 
             // 加载Markdown文件
-            fetch(doc.file)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('文档加载失败');
-                    }
-                    return response.text();
-                })
+            function tryFetchVariants(path) {
+                const variants = [path];
+                try {
+                    const parts = path.split('/');
+                    const filename = parts.pop();
+                    // 添加小写文件名变体
+                    variants.push(parts.concat(filename.toLowerCase()).join('/'));
+                    // 添加大写文件名变体
+                    variants.push(parts.concat(filename.toUpperCase()).join('/'));
+                    // 添加URI编码变体
+                    variants.push(parts.concat(encodeURIComponent(filename)).join('/'));
+                    variants.push(encodeURI(path));
+                } catch (e) {
+                    // ignore
+                }
+
+                // 按序尝试fetch，直到成功
+                let chain = Promise.reject();
+                variants.forEach(p => {
+                    chain = chain.catch(() => fetch(p).then(response => {
+                        if (!response.ok) {
+                            return Promise.reject(new Error(`HTTP ${response.status} for ${p}`));
+                        }
+                        return response.text();
+                    }));
+                });
+
+                return chain;
+            }
+
+            tryFetchVariants(doc.file)
                 .then(markdown => {
                     // 解析Markdown
                     const html = marked.parse(markdown);
@@ -801,7 +819,7 @@
                 })
                 .catch(error => {
                     console.error('加载文档失败:', error);
-                    showError('加载文档失败: ' + error.message);
+                    showError(`加载文档失败: ${error.message}<br>文件路径: ${doc.file}`);
                 });
         }
 
@@ -836,13 +854,10 @@
 
         // 初始化搜索功能
         function initSearch() {
-            // 创建搜索索引
-            searchIndex = lunr(function () {
-                this.ref('id');
-                this.field('title', { boost: 10 });
-                this.field('content');
-                this.field('tags');
-            });
+            // 如果已初始化，则直接返回（防止重复绑定事件或重复构建索引）
+            if (searchIndex) return;
+            // 创建（或重建）搜索索引的辅助函数会在下面定义
+            rebuildSearchIndex();
 
             // 设置搜索输入事件
             const searchInput = document.getElementById('search-input');
@@ -859,11 +874,68 @@
                 performSearch(query);
             });
 
-            // 初始加载首页内容到搜索索引
-            loadDocumentForSearch('home');
+            // 预加载所有文档到搜索索引
+            preloadAllDocumentsForSearch();
 
             console.log("搜索功能初始化完成");
+        }
 
+        // 预加载所有文档到搜索索引
+        function preloadAllDocumentsForSearch() {
+            console.log("开始预加载所有文档到搜索索引...");
+
+            docConfig.menu.forEach(doc => {
+                // 检查是否已经添加过
+                if (documents.some(d => d.id === doc.id)) {
+                    console.log(`文档已存在，跳过: ${doc.title}`);
+                    return;
+                }
+
+                console.log(`预加载文档: ${doc.title} - ${doc.file}`);
+
+                fetch(doc.file)
+                    .then(response => {
+                        if (!response.ok) {
+                            console.warn(`加载失败: ${doc.title} - HTTP ${response.status}`);
+                            return '';
+                        }
+                        return response.text();
+                    })
+                    .then(markdown => {
+                        if (markdown && markdown.trim().length > 0) {
+                            addDocumentToSearchIndex(doc.id, doc.title, markdown);
+                            console.log(`✓ 成功预加载: ${doc.title}`);
+                        } else {
+                            console.warn(`内容为空，跳过: ${doc.title}`);
+                        }
+                    })
+                    .catch(error => {
+                        console.error(`预加载文档失败: ${doc.title}`, error);
+                        // 即使加载失败，也添加一个空文档到索引，至少标题可以搜索
+                        addDocumentToSearchIndex(doc.id, doc.title, '');
+                    });
+            });
+        }
+
+        // 重建搜索索引（Lunr 在构建后返回的 Index 对象通常不再支持 .add，
+        // 因此我们在每次添加文档后通过当前 documents 列表重建索引）
+        function rebuildSearchIndex() {
+            try {
+                searchIndex = lunr(function () {
+                    this.ref('id');
+                    this.field('title', { boost: 10 });
+                    this.field('content');
+                    this.field('tags');
+
+                    // 将已有文档加入构建器
+                    if (Array.isArray(documents) && documents.length > 0) {
+                        documents.forEach(d => this.add(d));
+                    }
+                });
+            } catch (e) {
+                console.error('重建搜索索引失败：', e);
+                searchIndex = null;
+            }
         }
 
         // 切换搜索框显示状态
@@ -885,29 +957,51 @@
 
         // 执行搜索
         function performSearch(query) {
-            const results = searchIndex.search(query);
             const searchResults = document.getElementById('search-results');
 
-            if (results.length === 0) {
+            // 先尝试 Lunr 查询（若可用）
+            let lunrResults = [];
+            if (searchIndex && typeof searchIndex.search === 'function') {
+                try {
+                    lunrResults = searchIndex.search(query);
+                } catch (e) {
+                    console.warn('Lunr 查询失败，降级到子字符串搜索：', e);
+                    lunrResults = [];
+                }
+            }
+
+            // 将 Lunr 结果映射为文档对象
+            let matchedDocs = [];
+            if (lunrResults && lunrResults.length > 0) {
+                matchedDocs = lunrResults.map(r => documents.find(d => d.id === r.ref)).filter(Boolean);
+            }
+
+            // 如果 Lunr 未命中（常见于中文/无空格语言），使用简单的子字符串匹配作为后备
+            if (matchedDocs.length === 0) {
+                const q = query.trim().toLowerCase();
+                matchedDocs = documents.filter(d => {
+                    const title = (d.title || '').toLowerCase();
+                    const content = (d.content || '').toLowerCase();
+                    return title.includes(q) || content.includes(q);
+                });
+            }
+
+            if (matchedDocs.length === 0) {
                 searchResults.innerHTML = '<div class="search-result-item">未找到相关文档</div>';
                 searchResults.classList.add('active');
                 return;
             }
 
+            // 渲染搜索结果
             let resultsHTML = '';
-            results.slice(0, 10).forEach(result => {
-                const doc = documents.find(d => d.id === result.ref);
-                if (doc) {
-                    // 创建摘要
-                    const excerpt = createExcerpt(doc.content, query);
-
-                    resultsHTML += `
-                            <div class="search-result-item" data-doc-id="${doc.id}">
-                                <div class="search-result-title">${doc.title}</div>
-                                <div class="search-result-excerpt">${excerpt}</div>
-                            </div>
-                        `;
-                }
+            matchedDocs.slice(0, 10).forEach(doc => {
+                const excerpt = createExcerpt(doc.content, query);
+                resultsHTML += `
+                        <div class="search-result-item" data-doc-id="${doc.id}">
+                            <div class="search-result-title">${doc.title}</div>
+                            <div class="search-result-excerpt">${excerpt}</div>
+                        </div>
+                    `;
             });
 
             searchResults.innerHTML = resultsHTML;
@@ -972,22 +1066,34 @@
         // 添加文档到搜索索引
         function addDocumentToSearchIndex(docId, title, content) {
             // 检查是否已经添加过
-            if (documents.some(d => d.id === docId)) return;
+            const existingIndex = documents.findIndex(d => d.id === docId);
+            if (existingIndex !== -1) {
+                // 如果已存在，更新内容
+                documents[existingIndex].content = content || '';
+            } else {
+                // 准备文档数据并先存储到内存列表
+                const docData = {
+                    id: docId,
+                    title: title,
+                    content: content || ''  // 确保content不为undefined
+                };
+                documents.push(docData);
+            }
 
-            // 准备文档数据
-            const docData = {
-                id: docId,
-                title: title,
-                content: content
-            };
+            // 确保索引已初始化并重建索引以包含新文档
+            try {
+                if (!searchIndex) {
+                    console.warn('searchIndex 尚未初始化，调用 initSearch() 以初始化。');
+                    initSearch();
+                    return;
+                }
 
-            // 添加到索引
-            searchIndex.add(docData);
-
-            // 存储文档数据
-            documents.push(docData);
-
-            console.log(`已添加文档到搜索索引: ${title}`);
+                rebuildSearchIndex();
+                console.log(`已更新文档到搜索索引: ${title}`);
+            } catch (e) {
+                console.error('向搜索索引添加文档失败：', e);
+            }
+        
         }
     </script>
 </body>
