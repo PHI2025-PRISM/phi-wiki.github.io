@@ -21,7 +21,7 @@
             --dark-color: #34495e;
             --text-color: #333;
             --border-radius: 6px;
-            --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
         }
 
         * {
@@ -616,6 +616,16 @@
 
             .sidebar {
                 width: 100%;
+                /* 移动端移除粘性定位，改为静态定位 */
+                position: static;
+                top: auto;
+                max-height: none;
+                overflow-y: visible;
+                margin-bottom: 1rem;
+            }
+
+            .sidebar.expanded {
+                max-height: none;
             }
 
             .header-content {
@@ -630,6 +640,31 @@
 
             nav li {
                 margin: 0 0.75rem;
+            }
+            
+            /* 移动端优化搜索框 */
+            .search-box.active {
+                display: block;
+            }
+            
+            /* 移动端优化搜索结果 */
+            .search-results {
+                position: fixed;
+                top: 50%;
+                left: 10px;
+                right: 10px;
+                max-height: 60vh;
+                transform: translateY(-50%);
+                z-index: 1000;
+            }
+            
+            /* 移动端限制嵌套菜单的最大高度 */
+            .category-doc-list.expanded,
+            .subcategory-doc-list.expanded,
+            .subsubcategory-doc-list.expanded,
+            .subsubsubcategory-doc-list.expanded {
+                max-height: 300px;
+                overflow-y: auto;
             }
         }
     </style>
@@ -721,6 +756,7 @@
                 { id: "philythia-lanthes", title: "菲莉茜娅·兰瑟斯", file: "docs/phi-role/Philythia-Lanthes.md" },
                 
                 // 故事分类
+                { id: "farewell-war", title: "永别了，战争", file: "docs/story/Farewell-War.md" },
                 { id: "polarized-light", title: "偏振光", file: "docs/story/polarized-light.md" },
                 { id: "danger-zone", title: "危险地带", file: "docs/story/Danger-Zone.md" },
 
@@ -848,8 +884,8 @@
                         },
                          "偏振光": {
                             "章节": {
-                            "polarized-light-chapter1": "第一章",
-                            "polarized-light-chapter2": "第二章",
+                            "polarized-light-chapter1": "第一章：光之始",
+                            "polarized-light-chapter2": "第二章：折射的命运",
                          }
                     }
                 },
@@ -1540,7 +1576,6 @@
     </script>
 </body>
 </html>
-
 
 
 
