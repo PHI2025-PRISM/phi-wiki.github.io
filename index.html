@@ -608,6 +608,41 @@
             color: #d63031;
         }
 
+        /* 添加表格样式 */
+        .main-content table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    }
+
+    .main-content th, .main-content td {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    text-align: left;
+    }
+
+    .main-content th {
+    background-color: var(--light-color);
+    font-weight: bold;
+    }
+
+    .main-content tr:nth-child(even) {
+    background-color: #f9f9f9;
+    }
+
+    .main-content tr:hover {
+    background-color: #f5f5f5;
+    }
+
+/* 响应式表格 */
+@media (max-width: 768px) {
+    .main-content table {
+        display: block;
+        overflow-x: auto;
+    }
+}
+
         /* 响应式设计 */
         @media (max-width: 768px) {
             .container {
@@ -778,7 +813,8 @@
                 { id: "sea-church-introduce", title: "深海教会", file: "docs/worldview/sea-church-introduce.md" },
                 { id: "Möbius-Legion-introduce", title: "莫比乌斯军团", file: "docs/worldview/Möbius-Legion-introduce.md" },
                 //概念
-                { id: "ees", title: "静滞病", file: "docs/worldview/EES.md"}
+                { id: "ees", title: "静滞病", file: "docs/worldview/EES.md"},
+                { id: "a-c-c-e-s-s", title: "A.C.C.E.S.S.", file: "docs/worldview/A-C-C-E-S-S.md"}
             ],
 
             // 默认文档
@@ -822,8 +858,12 @@
 
                     return code;
                 },
-                breaks: true,
-                gfm: true
+                breaks: true, // 启用换行符支持
+                gfm: true, // 启用GitHub风格的Markdown
+                tables: true, // 启用表格支持
+                pedantic: false, // 避免过于严格的解析
+                smartLists: true, // 智能列表
+                smartypants: true // 智能标点
             });
             // 兼容性初始化高亮（优先新API）
             if (typeof hljs !== 'undefined') {
@@ -914,7 +954,8 @@
                         "Möbius-Legion-introduce": "莫比乌斯军团"
                     },
                     "概念": {
-                        "ees": "静滞病"
+                        "ees": "静滞病",
+                        "a-c-c-e-s-s": "A.C.C.E.S.S."
                     }
                 },
                 "开发与社区": {
