@@ -610,38 +610,38 @@
 
         /* 添加表格样式 */
         .main-content table {
-    border-collapse: collapse;
-    width: 100%;
-    margin-bottom: 1rem;
-    border: 1px solid #ddd;
-    }
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+        }
 
-    .main-content th, .main-content td {
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    text-align: left;
-    }
+        .main-content th, .main-content td {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
 
-    .main-content th {
-    background-color: var(--light-color);
-    font-weight: bold;
-    }
+        .main-content th {
+            background-color: var(--light-color);
+            font-weight: bold;
+        }
 
-    .main-content tr:nth-child(even) {
-    background-color: #f9f9f9;
-    }
+        .main-content tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
 
-    .main-content tr:hover {
-    background-color: #f5f5f5;
-    }
+        .main-content tr:hover {
+            background-color: #f5f5f5;
+        }
 
-/* 响应式表格 */
-@media (max-width: 768px) {
-    .main-content table {
-        display: block;
-        overflow-x: auto;
-    }
-}
+        /* 响应式表格 */
+        @media (max-width: 768px) {
+            .main-content table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
 
         /* 响应式设计 */
         @media (max-width: 768px) {
@@ -825,6 +825,7 @@
         };
 
         // 搜索索引和文档存储
+        let currentExpandedCategory = null;
         let searchIndex = null;
         let documents = [];
 
@@ -868,6 +869,7 @@
                 smartLists: true, // 智能列表
                 smartypants: true // 智能标点
             });
+
             // 兼容性初始化高亮（优先新API）
             if (typeof hljs !== 'undefined') {
                 if (typeof hljs.highlightAll === 'function') {
@@ -898,6 +900,12 @@
         function buildNestedDocMenu() {
             const menuContainer = document.getElementById('doc-menu');
             menuContainer.innerHTML = '';
+
+            // 创建文档映射
+            const docMap = {};
+            docConfig.menu.forEach(doc => {
+                docMap[doc.id] = doc;
+            });
 
             // 定义嵌套结构
             const nestedStructure = {
@@ -974,10 +982,14 @@
                 }
             };
 
+            // 添加文档映射到全局变量，方便其他函数访问
+            window.docMap = docMap;
+
             Object.entries(nestedStructure).forEach(([category, categoryItems]) => {
                 // 创建分类容器
                 const categoryItem = document.createElement('li');
                 categoryItem.className = 'sidebar-category';
+                categoryItem.setAttribute('data-category', category);
 
                 // 创建分类标题（可点击展开/折叠）
                 const categoryHeader = document.createElement('div');
@@ -992,11 +1004,12 @@
                 docList.className = 'category-doc-list collapsed';
 
                 // 递归添加项目
-                addItemsToMenu(docList, categoryItems, 1);
+                addItemsToMenu(docList, categoryItems, 1, docMap);
 
                 // 点击分类标题展开/折叠
                 categoryHeader.addEventListener('click', function () {
                     const isExpanded = docList.classList.contains('expanded');
+
                     if (!isExpanded) {
                         collapseAllMainCategories(category);
                     }
@@ -1004,11 +1017,13 @@
                         docList.classList.remove('expanded');
                         docList.classList.add('collapsed');
                         categoryHeader.classList.remove('expanded');
+                        currentExpandedCategory = null;
                         checkSidebarCollapse(); // 检查是否需要折叠侧边栏
                     } else {
                         docList.classList.remove('collapsed');
                         docList.classList.add('expanded');
                         categoryHeader.classList.add('expanded');
+                        currentExpandedCategory = category;
                         expandSidebar(); // 展开侧边栏以显示内容
                     }
                 });
@@ -1057,28 +1072,33 @@
 
 
         // 递归添加项目到菜单
-        function addItemsToMenu(container, items, level) {
+        function addItemsToMenu(container, items, level, docMap) {
             Object.entries(items).forEach(([key, value]) => {
                 // 如果值是对象，说明是子分类
                 if (typeof value === 'object' && !Array.isArray(value)) {
                     if (level === 1) {
-                        addSubcategory(container, key, value, level);
+                        addSubcategory(container, key, value, level, docMap);
                     } else if (level === 2) {
-                        addSubsubcategory(container, key, value, level);
+                        addSubsubcategory(container, key, value, level, docMap);
                     }else if (level === 3) {
-                        addSubsubsubcategory(container, key, value, level);
+                        addSubsubsubcategory(container, key, value, level, docMap);
                     }
                     // 可以继续添加更多级别，但三级通常足够
                 } 
                 // 否则是文档项
                 else {
-                    addDocumentItem(container, key, value);
+                    const doc = docMap[key];
+                    if (doc) {
+                        addDocumentItem(container, doc);
+                    } else {
+                        console.warn(`未找到文档配置: ${key}`);
+                    }
                 }
             });
         }
 
         // 添加子分类
-        function addSubcategory(container, subcategoryName, subcategoryItems, level) {
+        function addSubcategory(container, subcategoryName, subcategoryItems, level, docMap) {
             const subcategoryItem = document.createElement('li');
             subcategoryItem.className = 'subcategory';
 
@@ -1095,7 +1115,7 @@
             subcategoryDocList.className = 'subcategory-doc-list collapsed';
 
             // 递归添加子分类中的项目
-            addItemsToMenu(subcategoryDocList, subcategoryItems, level + 1);
+            addItemsToMenu(subcategoryDocList, subcategoryItems, level + 1, docMap);
 
             // 点击子分类标题展开/折叠
             subcategoryHeader.addEventListener('click', function () {
@@ -1119,7 +1139,7 @@
         }
 
         // 添加三级子分类
-        function addSubsubcategory(container, subsubcategoryName, subsubcategoryItems, level) {
+        function addSubsubcategory(container, subsubcategoryName, subsubcategoryItems, level, docMap) {
             const subsubcategoryItem = document.createElement('li');
             subsubcategoryItem.className = 'subsubcategory';
 
@@ -1136,7 +1156,7 @@
             subsubcategoryDocList.className = 'subsubcategory-doc-list collapsed';
 
             // 递归添加子分类中的项目
-            addItemsToMenu(subsubcategoryDocList, subsubcategoryItems, level + 1);
+            addItemsToMenu(subsubcategoryDocList, subsubcategoryItems, level + 1, docMap);
 
             // 点击子分类标题展开/折叠
             subsubcategoryHeader.addEventListener('click', function () {
@@ -1160,7 +1180,7 @@
         }
 
         // 添加四级子分类
-        function addSubsubsubcategory(container, subsubsubcategoryName, subsubsubcategoryItems, level) {
+        function addSubsubsubcategory(container, subsubsubcategoryName, subsubsubcategoryItems, level, docMap) {
             const subsubsubcategoryItem = document.createElement('li');
             subsubsubcategoryItem.className = 'subsubsubcategory';
 
@@ -1177,7 +1197,7 @@
             subsubsubcategoryDocList.className = 'subsubsubcategory-doc-list collapsed';
 
             // 递归添加子分类中的项目
-            addItemsToMenu(subsubsubcategoryDocList, subsubsubcategoryItems, level + 1);
+            addItemsToMenu(subsubsubcategoryDocList, subsubsubcategoryItems, level + 1, docMap);
 
             // 点击子分类标题展开/折叠
             subsubsubcategoryHeader.addEventListener('click', function () {
@@ -1201,17 +1221,29 @@
         }
 
         // 添加文档项
-        function addDocumentItem(container, docId, docTitle) {
+        function addDocumentItem(container, doc) {
             const docListItem = document.createElement('li');
             const docLink = document.createElement('a');
-            docLink.href = '#';
-            docLink.textContent = docTitle;
-            docLink.setAttribute('data-doc', docId);
-            docLink.classList.add('doc-link');
+            
+            // 检查是否为外部链接
+            if (doc.external && doc.externalUrl) {
+                // 外部链接
+                docLink.href = doc.externalUrl;
+                docLink.target = "_blank";
+                docLink.rel = "noopener noreferrer";
+            } else {
+                // 内部链接
+                docLink.href = '#';
+                docLink.setAttribute('data-doc', doc.id);
+                docLink.classList.add('doc-link');
+            }
+            
+            docLink.textContent = doc.title;
 
             docListItem.appendChild(docLink);
             container.appendChild(docListItem);
         }
+
 
 
         // 设置路由
@@ -1240,7 +1272,9 @@
                 if (e.target.matches('.doc-link, .nav-link')) {
                     e.preventDefault();
                     const docId = e.target.getAttribute('data-doc');
-                    navigateToDoc(docId);
+                    if (docId) {
+                        navigateToDoc(docId);
+                    }
                 }
 
                 // 搜索切换按钮点击事件
@@ -1261,9 +1295,23 @@
                 }
             });
         }
+
         // 导航到文档
         function navigateToDoc(docId) {
-            // 更新URL哈希
+            // 查找文档配置
+            const doc = docConfig.menu.find(d => d.id === docId);
+            if (!doc) {
+                console.error(`文档不存在: ${docId}`);
+                return;
+            }
+            
+            // 如果是外部链接，直接跳转
+            if (doc.external && doc.externalUrl) {
+                window.open(doc.externalUrl, '_blank');
+                return;
+            }
+
+            // 内部链接：更新URL哈希
             window.location.hash = docId;
 
             // 更新活动状态
@@ -1298,6 +1346,12 @@
             const doc = docConfig.menu.find(d => d.id === docId);
             if (!doc) {
                 showError(`文档不存在: ${docId}`);
+                return;
+            }
+
+            // 如果是外部链接，不应该调用loadDocument
+            if (doc.external) {
+                console.warn(`尝试加载外部文档: ${docId}`);
                 return;
             }
 
@@ -1429,7 +1483,7 @@
             console.log("搜索功能初始化完成");
         }
 
-        // 预加载所有文档到搜索索引
+       // 预加载所有文档到搜索索引
         function preloadAllDocumentsForSearch() {
             console.log("开始预加载所有文档到搜索索引...");
 
@@ -1437,6 +1491,12 @@
                 // 检查是否已经添加过
                 if (documents.some(d => d.id === doc.id)) {
                     console.log(`文档已存在，跳过: ${doc.title}`);
+                    return;
+                }
+
+                // 如果是外部链接，不添加到搜索索引
+                if (doc.external) {
+                    console.log(`跳过外部链接文档: ${doc.title}`);
                     return;
                 }
 
@@ -1592,50 +1652,36 @@
         
 
         // 添加文档到搜索索引
-        function addDocumentToSearchIndex(docId, title, content) {
-            // 检查是否已经添加过
-            const existingIndex = documents.findIndex(d => d.id === docId);
-            if (existingIndex !== -1) {
-                // 如果已存在，更新内容
-                documents[existingIndex].content = content || '';
-            } else {
-                // 准备文档数据并先存储到内存列表
-                const docData = {
-                    id: docId,
-                    title: title,
-                    content: content || ''  // 确保content不为undefined
-                };
-                documents.push(docData);
-            }
-
-            // 确保索引已初始化并重建索引以包含新文档
-            try {
-                if (!searchIndex) {
-                    console.warn('searchIndex 尚未初始化，调用 initSearch() 以初始化。');
-                    initSearch();
-                    return;
-                }
-
-                rebuildSearchIndex();
-                console.log(`已更新文档到搜索索引: ${title}`);
-            } catch (e) {
-                console.error('向搜索索引添加文档失败：', e);
-            }
-        
+    function addDocumentToSearchIndex(docId, title, content) {
+        // 检查是否已经添加过
+        const existingIndex = documents.findIndex(d => d.id === docId);
+        if (existingIndex !== -1) {
+            // 如果已存在，更新内容
+            documents[existingIndex].content = content || '';
+        } else {
+            // 准备文档数据并先存储到内存列表
+            const docData = {
+                id: docId,
+                title: title,
+                content: content || ''  // 确保content不为undefined
+            };
+            documents.push(docData);
         }
+
+        // 确保索引已初始化并重建索引以包含新文档
+        try {
+            if (!searchIndex) {
+                console.warn('searchIndex 尚未初始化，调用 initSearch() 以初始化。');
+                initSearch();
+                return;
+            }
+
+            rebuildSearchIndex();
+            console.log(`已更新文档到搜索索引: ${title}`);
+        } catch (e) {
+            console.error('向搜索索引添加文档失败：', e);
+        }
+    } 
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
