@@ -1682,6 +1682,57 @@
             console.error('向搜索索引添加文档失败：', e);
         }
     } 
+    // 添加移动端优化函数
+function optimizeForMobile() {
+    const isMobile = window.innerWidth <= 768;
+    const sidebar = document.querySelector('.sidebar');
+    const mainContent = document.querySelector('.main-content');
+    
+    if (isMobile) {
+        // 在移动端，当侧边栏展开时，禁止主内容滚动
+        document.addEventListener('click', function(e) {
+            const categoryHeader = e.target.closest('.category-header, .subcategory-header, .subsubcategory-header, .subsubsubcategory-header');
+            if (categoryHeader) {
+                setTimeout(() => {
+                    const expandedLists = document.querySelectorAll('.category-doc-list.expanded, .subcategory-doc-list.expanded, .subsubcategory-doc-list.expanded, .subsubsubcategory-doc-list.expanded');
+                    if (expandedLists.length > 0) {
+                        mainContent.style.overflow = 'hidden';
+                    } else {
+                        mainContent.style.overflow = '';
+                    }
+                }, 50);
+            }
+        });
+        
+        // 点击文档链接时恢复滚动
+        document.addEventListener('click', function(e) {
+            if (e.target.matches('.doc-link')) {
+                setTimeout(() => {
+                    mainContent.style.overflow = '';
+                }, 100);
+            }
+        });
+        
+        // 防止iOS缩放
+        document.addEventListener('touchstart', function(e) {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+    }
+}
+
+// 在DOM加载完成后调用
+document.addEventListener('DOMContentLoaded', function() {
+    optimizeForMobile();
+    
+    // 监听窗口大小变化
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(optimizeForMobile, 250);
+    });
+});
     </script>
 </body>
 </html>
