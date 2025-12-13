@@ -38,6 +38,7 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            min-height: 100dvh;
         }
 
         /* 头部样式 */
@@ -222,11 +223,11 @@
 
         /* 页脚样式 */
         footer {
+            position: relative;
+            z-index: 10;
+            margin-top: auto;
+            padding: 1rem;
             background-color: var(--primary-color);
-            color: white;
-            text-align: center;
-            padding: 1.5rem;
-            margin-top: 2rem;
         }
 
         /* 嵌套菜单样式 */
@@ -700,6 +701,240 @@
             .subsubsubcategory-doc-list.expanded {
                 max-height: 300px;
                 overflow-y: auto;
+
+        /* 修复移动端布局 */
+        @media (max-width: 768px) {
+    /* 改进 body 布局 */
+    body {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow-x: hidden;
+    }
+    
+    /* 修复容器布局 */
+    .container {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch; /* 平滑滚动 */
+        margin: 0 auto 2rem;
+        padding: 0 1rem;
+    }
+    
+    /* 确保主内容区不会溢出 */
+    .main-content {
+        max-width: 100%;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        word-break: break-word;
+        padding-bottom: 2rem; /* 为长内容提供底部空间 */
+    }
+    
+    /* 修复页脚在移动端的显示 */
+    footer {
+        position: relative;
+        z-index: 10;
+        margin-top: auto;
+        padding: 1rem;
+        background-color: var(--primary-color);
+    }
+    
+    /* 确保页眉始终可见 */
+    header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background-color: var(--primary-color);
+        padding: 0.75rem 1rem;
+    }
+    
+    .header-content {
+        flex-direction: row;
+        align-items: center;
+        padding: 0;
+    }
+    
+    .logo {
+        font-size: 1.2rem;
+        white-space: nowrap;
+    }
+    
+    nav ul {
+        margin-top: 0;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+    
+    nav li {
+        margin: 0 0.5rem;
+    }
+    
+    nav a {
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+    
+    /* 改进侧边栏在移动端的显示 */
+    .sidebar {
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        position: static;
+        max-height: none;
+        overflow-y: visible;
+    }
+    
+    /* 改进面包屑导航 */
+    .breadcrumb {
+        font-size: 0.85rem;
+        padding: 0.5rem 0;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* 改进页面标题 */
+    .main-content h1 {
+        font-size: 1.5rem;
+        line-height: 1.3;
+        word-break: break-word;
+    }
+    
+    /* 防止表格内容溢出 */
+    .main-content table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 1rem;
+        border: 0;
+    }
+    
+    .main-content th,
+    .main-content td {
+        min-width: 100px;
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    /* 改进代码块显示 */
+    .main-content pre {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        font-size: 0.9rem;
+        padding: 0.75rem;
+    }
+    
+    /* 改进搜索框在移动端的显示 */
+    .search-box.active {
+        position: relative;
+        z-index: 1000;
+    }
+    
+    .search-results {
+        max-height: 50vh;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+    
+    /* 改进嵌套菜单滚动 */
+    .category-doc-list,
+    .subcategory-doc-list,
+    .subsubcategory-doc-list,
+    .subsubsubcategory-doc-list {
+        max-height: 250px !important;
+        overflow-y: auto;
+    }
+        }
+
+        /* 添加针对超小屏幕的优化 */
+        @media (max-width: 480px) {
+    .container {
+        padding: 0 0.5rem;
+        margin: 1rem auto;
+    }
+    
+    .main-content {
+        padding: 1rem;
+    }
+    
+    .logo {
+        font-size: 1.1rem;
+    }
+    
+    nav li {
+        margin: 0 0.25rem;
+    }
+    
+    nav a {
+        font-size: 0.85rem;
+    }
+    
+    .breadcrumb {
+        font-size: 0.8rem;
+    }
+    
+    .main-content h1 {
+        font-size: 1.3rem;
+    }
+    
+    .main-content h2 {
+        font-size: 1.2rem;
+    }
+    
+    .main-content h3 {
+        font-size: 1.1rem;
+    }
+    
+    .main-content p,
+    .main-content li {
+        font-size: 0.95rem;
+    }
+        }
+
+        /* 添加针对超长内容的额外保护 */
+        @media (max-height: 600px) {
+    body {
+        min-height: 100vh;
+        min-height: 100svh; /* 小视口高度 */
+    }
+    
+    .sidebar {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+        }
+
+        /* 添加移动端滚动优化 */
+        @media (hover: none) and (pointer: coarse) {
+    /* 触摸设备优化 */
+    .doc-link,
+    .nav-link,
+    .category-header,
+    .subcategory-header,
+    .subsubcategory-header,
+    .subsubsubcategory-header {
+        min-height: 44px; /* 触摸目标最小尺寸 */
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+    
+    button,
+    .search-result-item {
+        min-height: 44px;
+    }
+    
+    /* 改进滚动体验 */
+    .main-content {
+        -webkit-overflow-scrolling: touch;
+    }
+        }
+
+        /* 防止iOS橡皮筋效果导致的问题 */
+        @supports (-webkit-touch-callout: none) {
+            body {
+                /* iOS需要特定处理 */
+                height: -webkit-fill-available;
+                    }
+                }
             }
         }
     </style>
@@ -1682,57 +1917,6 @@
             console.error('向搜索索引添加文档失败：', e);
         }
     } 
-    // 添加移动端优化函数
-function optimizeForMobile() {
-    const isMobile = window.innerWidth <= 768;
-    const sidebar = document.querySelector('.sidebar');
-    const mainContent = document.querySelector('.main-content');
-    
-    if (isMobile) {
-        // 在移动端，当侧边栏展开时，禁止主内容滚动
-        document.addEventListener('click', function(e) {
-            const categoryHeader = e.target.closest('.category-header, .subcategory-header, .subsubcategory-header, .subsubsubcategory-header');
-            if (categoryHeader) {
-                setTimeout(() => {
-                    const expandedLists = document.querySelectorAll('.category-doc-list.expanded, .subcategory-doc-list.expanded, .subsubcategory-doc-list.expanded, .subsubsubcategory-doc-list.expanded');
-                    if (expandedLists.length > 0) {
-                        mainContent.style.overflow = 'hidden';
-                    } else {
-                        mainContent.style.overflow = '';
-                    }
-                }, 50);
-            }
-        });
-        
-        // 点击文档链接时恢复滚动
-        document.addEventListener('click', function(e) {
-            if (e.target.matches('.doc-link')) {
-                setTimeout(() => {
-                    mainContent.style.overflow = '';
-                }, 100);
-            }
-        });
-        
-        // 防止iOS缩放
-        document.addEventListener('touchstart', function(e) {
-            if (e.touches.length > 1) {
-                e.preventDefault();
-            }
-        }, { passive: false });
-    }
-}
-
-// 在DOM加载完成后调用
-document.addEventListener('DOMContentLoaded', function() {
-    optimizeForMobile();
-    
-    // 监听窗口大小变化
-    let resizeTimer;
-    window.addEventListener('resize', function() {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(optimizeForMobile, 250);
-    });
-});
     </script>
 </body>
 </html>
